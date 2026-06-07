@@ -14,12 +14,14 @@ export default function ChatMessage({ role, content }) {
       >
         {isUser ? (
           <p className="text-sm whitespace-pre-wrap">{content}</p>
-        ) : content ? (
-          <div className="text-sm prose prose-invert max-w-none">
-            <ReactMarkdown>{content}</ReactMarkdown>
-          </div>
         ) : (
-          <span className="inline-block w-2 h-4 bg-blue-400 animate-pulse" />
+          <div className="text-sm prose prose-invert max-w-none">
+            {content ? (
+              <ReactMarkdown>{content}</ReactMarkdown>
+            ) : (
+              <span className="inline-block w-2 h-4 bg-blue-400 animate-pulse" />
+            )}
+          </div>
         )}
       </div>
     </div>

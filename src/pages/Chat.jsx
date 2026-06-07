@@ -17,13 +17,23 @@ export default function Chat() {
   const [showSidebar, setShowSidebar] = useState(true);
   const abortRef = useRef(null);
   const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
+  const isNearBottomRef = useRef(true);
+  const conversationIdRef = useRef(null);
+  const selectedDocIdRef = useRef(null);
 
   useEffect(() => {
     documentsAPI().list().then(({ data }) => setDocuments(data)).catch(() => {});
   }, []);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const container = messagesContainerRef.current;
+    if (!container) return;
+    const threshold = 100;
+    const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < threshold;
+    if (isNearBottom) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
   }, [messages]);
 
   function handleUploadSuccess(doc) {
@@ -33,6 +43,14 @@ export default function Chat() {
     setConversationId(null);
     setMessages([]);
   }
+
+  useEffect(() => {
+    conversationIdRef.current = conversationId;
+  }, [conversationId]);
+
+  useEffect(() => {
+    selectedDocIdRef.current = selectedDocId;
+  }, [selectedDocId]);
 
   function handleSelectDocument(docId, docName) {
     setSelectedDocId(docId);
@@ -61,7 +79,7 @@ export default function Chat() {
   }
 
   function handleSend(message) {
-    if (!selectedDocId || !message.trim()) return;
+    if (!selectedDocIdRef.current || !message.trim()) return;
 
     const userMessage = { role: 'user', content: message };
     setMessages((prev) => [...prev, userMessage, { role: 'assistant', content: '' }]);
@@ -70,12 +88,13 @@ export default function Chat() {
     let currentContent = '';
 
     const abort = streamChat({
-      documentId: selectedDocId,
+      documentId: selectedDocIdRef.current,
       message,
-      conversationId,
+      conversationId: conversationIdRef.current,
       onChunk: (chunk) => {
         currentContent += chunk;
         setMessages((prev) => {
+          if (!prev.length) return prev;
           const next = [...prev];
           const last = next[next.length - 1];
           if (last && last.role === 'assistant') {
@@ -85,12 +104,16 @@ export default function Chat() {
         });
       },
       onDone: (newConvId) => {
-        if (newConvId) setConversationId(newConvId);
+        if (newConvId) {
+          setConversationId(newConvId);
+          conversationIdRef.current = newConvId;
+        }
         setStreaming(false);
         currentContent = '';
       },
       onError: (error) => {
         setMessages((prev) => {
+          if (!prev.length) return prev;
           const next = [...prev];
           const last = next[next.length - 1];
           if (last && last.role === 'assistant') {
@@ -167,7 +190,12 @@ export default function Chat() {
               </span>
             )}
           </div>
-          <div className="flex-1 overflow-y-auto px-4 py-6 space-y-2">
+          <div ref={messagesContainerRef} className="flex-1 overflow-y-auto px-4 py-6 space-y-2" onScroll={() => {
+            const el = messagesContainerRef.current;
+            if (!el) return;
+            const threshold = 100;
+            isNearBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < threshold;
+          }}>
             {!selectedDocId && (
               <div className="flex items-center justify-center h-full text-gray-500">
                 <p>Upload a document to get started</p>
