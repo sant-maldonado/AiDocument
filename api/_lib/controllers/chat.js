@@ -61,11 +61,13 @@ export async function handleChat(req, res) {
     conversation.messages.push({ role: 'assistant', content: fullResponse });
     await conversation.save();
   } catch (err) {
+    console.error('Chat error:', err.message, err.stack);
+    const message = err.message || 'Error interno del servidor';
     if (res.headersSent) {
-      res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
+      res.write(`data: ${JSON.stringify({ error: message })}\n\n`);
       res.end();
     } else {
-      res.status(500).json({ error: err.message });
+      res.status(500).json({ error: message });
     }
   }
 }
