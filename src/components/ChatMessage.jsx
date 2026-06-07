@@ -6,7 +6,7 @@ export default function ChatMessage({ role, content }) {
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
       <div
-        className={`max-w-[80%] rounded-lg px-4 py-2 ${
+        className={`max-w-[80%] rounded-lg px-4 py-2 min-h-[2.5rem] ${
           isUser
             ? 'bg-blue-600 text-white'
             : 'bg-gray-800 text-gray-100'
@@ -14,10 +14,12 @@ export default function ChatMessage({ role, content }) {
       >
         {isUser ? (
           <p className="text-sm whitespace-pre-wrap">{content}</p>
-        ) : (
+        ) : content ? (
           <div className="text-sm prose prose-invert max-w-none">
             <ReactMarkdown>{content}</ReactMarkdown>
           </div>
+        ) : (
+          <span className="inline-block w-2 h-4 bg-blue-400 animate-pulse" />
         )}
       </div>
     </div>

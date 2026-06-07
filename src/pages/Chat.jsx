@@ -181,13 +181,6 @@ export default function Chat() {
             {messages.map((msg, i) => (
               <ChatMessage key={i} role={msg.role} content={msg.content} />
             ))}
-            {streaming && messages[messages.length - 1]?.content === '' && (
-              <div className="flex justify-start mb-4">
-                <div className="bg-gray-800 rounded-lg px-4 py-2">
-                  <span className="inline-block w-2 h-4 bg-blue-400 animate-pulse" />
-                </div>
-              </div>
-            )}
             <div ref={messagesEndRef} />
           </div>
           {selectedDocId && (
