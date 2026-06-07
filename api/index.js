@@ -21,11 +21,6 @@ app.use(async (req, res, next) => {
   }
 });
 
-app.use((req, res, next) => {
-  console.log(`[${req.method}] path="${req.path}" url="${req.url}" originalUrl="${req.originalUrl}"`);
-  next();
-});
-
 app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/chat', chatRoutes);
