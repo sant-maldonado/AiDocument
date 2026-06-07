@@ -1,4 +1,21 @@
 import ReactMarkdown from 'react-markdown';
+import { Component } from 'react';
+
+class MarkdownWrapper extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { error: null };
+  }
+  static getDerivedStateFromError() {
+    return { error: true };
+  }
+  render() {
+    if (this.state.error) {
+      return <span className="text-red-400 text-sm">Error rendering content</span>;
+    }
+    return <ReactMarkdown>{this.props.content}</ReactMarkdown>;
+  }
+}
 
 export default function ChatMessage({ role, content }) {
   const isUser = role === 'user';
@@ -17,7 +34,7 @@ export default function ChatMessage({ role, content }) {
         ) : (
           <div className="text-sm prose prose-invert max-w-none">
             {content ? (
-              <ReactMarkdown>{content}</ReactMarkdown>
+              <MarkdownWrapper content={content} />
             ) : (
               <span className="inline-block w-2 h-4 bg-blue-400 animate-pulse" />
             )}

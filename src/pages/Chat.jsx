@@ -55,6 +55,15 @@ export default function Chat() {
     selectedDocIdRef.current = selectedDocId;
   }, [selectedDocId]);
 
+  useEffect(() => {
+    if (messages.length > 0) {
+      const last = messages[messages.length - 1];
+      if (last.role === 'assistant' && !last.content && !streaming && !streamingRef.current) {
+        console.warn('Assistant message empty but streaming is false');
+      }
+    }
+  }, [messages, streaming]);
+
   function handleSelectDocument(docId, docName) {
     if (streamingRef.current) return;
     setSelectedDocId(docId);
@@ -88,7 +97,7 @@ export default function Chat() {
   }
 
   function handleSend(message) {
-    if (!selectedDocIdRef.current || !message.trim()) return;
+    if (!selectedDocIdRef.current || !message.trim() || streamingRef.current) return;
 
     const userMessage = { role: 'user', content: message, _id: ++msgIdRef.current };
     setMessages((prev) => [...prev, userMessage, { role: 'assistant', content: '', _id: ++msgIdRef.current }]);
