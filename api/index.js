@@ -25,7 +25,21 @@ app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/chat', chatRoutes);
 
+import { v2 as cloudinary } from 'cloudinary';
+
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
+
+app.get('/api/debug-env', (req, res) => {
+  res.json({
+    MONGODB_URI: !!process.env.MONGODB_URI,
+    JWT_SECRET: !!process.env.JWT_SECRET,
+    OPENAI_API_KEY: !!process.env.OPENAI_API_KEY,
+    CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME || '(not set)',
+    CLOUDINARY_API_KEY: !!process.env.CLOUDINARY_API_KEY,
+    CLOUDINARY_API_SECRET: !!process.env.CLOUDINARY_API_SECRET,
+    cloudinary_config: cloudinary.config(),
+  });
+});
 
 app.use((err, req, res, next) => {
   console.error(err);
