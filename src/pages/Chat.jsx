@@ -21,6 +21,8 @@ export default function Chat() {
   const isNearBottomRef = useRef(true);
   const conversationIdRef = useRef(null);
   const selectedDocIdRef = useRef(null);
+  const streamingRef = useRef(false);
+  const msgIdRef = useRef(0);
 
   useEffect(() => {
     documentsAPI().list().then(({ data }) => setDocuments(data)).catch(() => {});
@@ -37,6 +39,7 @@ export default function Chat() {
   }, [messages]);
 
   function handleUploadSuccess(doc) {
+    if (streamingRef.current) return;
     setDocuments((prev) => [doc, ...prev]);
     setSelectedDocId(doc._id);
     setSelectedDocName(doc.originalName);
@@ -53,6 +56,7 @@ export default function Chat() {
   }, [selectedDocId]);
 
   function handleSelectDocument(docId, docName) {
+    if (streamingRef.current) return;
     setSelectedDocId(docId);
     setSelectedDocName(docName);
     setConversationId(null);
@@ -60,30 +64,36 @@ export default function Chat() {
   }
 
   const handleNewConversation = useCallback(() => {
+    if (streamingRef.current) return;
     setConversationId(null);
     setMessages([]);
   }, []);
 
   async function handleSelectConversation(id) {
+    if (streamingRef.current) return;
+    streamingRef.current = true;
     setConversationId(id);
     setMessages([]);
     setStreaming(true);
     try {
       const { data } = await chatAPI().getConversation(id);
-      setMessages(data.messages || []);
+      const msgs = (data.messages || []).map((m) => ({ ...m, _id: ++msgIdRef.current }));
+      setMessages(msgs);
     } catch {
       // ignore
     } finally {
       setStreaming(false);
+      streamingRef.current = false;
     }
   }
 
   function handleSend(message) {
     if (!selectedDocIdRef.current || !message.trim()) return;
 
-    const userMessage = { role: 'user', content: message };
-    setMessages((prev) => [...prev, userMessage, { role: 'assistant', content: '' }]);
+    const userMessage = { role: 'user', content: message, _id: ++msgIdRef.current };
+    setMessages((prev) => [...prev, userMessage, { role: 'assistant', content: '', _id: ++msgIdRef.current }]);
     setStreaming(true);
+    streamingRef.current = true;
 
     let currentContent = '';
 
@@ -109,6 +119,7 @@ export default function Chat() {
           conversationIdRef.current = newConvId;
         }
         setStreaming(false);
+        streamingRef.current = false;
         currentContent = '';
       },
       onError: (error) => {
@@ -122,6 +133,7 @@ export default function Chat() {
           return next;
         });
         setStreaming(false);
+        streamingRef.current = false;
         currentContent = '';
       },
     });
@@ -130,6 +142,7 @@ export default function Chat() {
   }
 
   async function handleDeleteDocument(docId) {
+    if (streamingRef.current) return;
     await documentsAPI().delete(docId);
     setDocuments((prev) => prev.filter((d) => d._id !== docId));
     if (selectedDocId === docId) {
@@ -206,8 +219,8 @@ export default function Chat() {
                 <p>Ask a question about the document</p>
               </div>
             )}
-            {messages.map((msg, i) => (
-              <ChatMessage key={i} role={msg.role} content={msg.content} />
+            {messages.map((msg) => (
+              <ChatMessage key={msg._id} role={msg.role} content={msg.content} />
             ))}
             <div ref={messagesEndRef} />
           </div>
