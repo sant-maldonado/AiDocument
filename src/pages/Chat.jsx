@@ -129,7 +129,6 @@ export default function Chat() {
         }
         setStreaming(false);
         streamingRef.current = false;
-        currentContent = '';
       },
       onError: (error) => {
         setMessages((prev) => {
@@ -143,7 +142,6 @@ export default function Chat() {
         });
         setStreaming(false);
         streamingRef.current = false;
-        currentContent = '';
       },
     });
 
