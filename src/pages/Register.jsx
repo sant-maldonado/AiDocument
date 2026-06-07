@@ -19,7 +19,12 @@ export default function Register() {
       await register(username, email, password);
       navigate('/chat');
     } catch (err) {
-      setError(err.response?.data?.error || 'Registration failed');
+      const msg =
+        typeof err.response?.data === 'string' ? err.response.data :
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        'Registration failed';
+      setError(msg);
     } finally {
       setLoading(false);
     }

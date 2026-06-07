@@ -9,7 +9,7 @@ echo [1/2] Starting backend (Express + MongoDB)...
 start "AiDocument Backend" cmd /c "cd /d "%~dp0server" && npm run dev"
 
 echo [2/2] Starting frontend (Vite + React)...
-start "AiDocument Frontend" cmd /c "cd /d "%~dp0client" && npm run dev"
+start "AiDocument Frontend" cmd /c "cd /d "%~dp0" && npm run dev"
 
 echo.
 echo ========================================

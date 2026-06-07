@@ -18,7 +18,12 @@ export default function Login() {
       await login(email, password);
       navigate('/chat');
     } catch (err) {
-      setError(err.response?.data?.error || 'Login failed');
+      const msg =
+        typeof err.response?.data === 'string' ? err.response.data :
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        'Login failed';
+      setError(msg);
     } finally {
       setLoading(false);
     }
