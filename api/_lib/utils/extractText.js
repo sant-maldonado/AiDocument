@@ -1,11 +1,20 @@
-import pdfParse from 'pdf-parse';
+import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
+
+pdfjs.GlobalWorkerOptions.workerSrc = '';
 
 export async function extractTextFromBuffer(buffer, filename) {
   const ext = filename.split('.').pop().toLowerCase();
 
   if (ext === 'pdf') {
-    const data = await pdfParse(buffer);
-    return data.text;
+    const data = new Uint8Array(buffer);
+    const doc = await pdfjs.getDocument(data).promise;
+    const pages = [];
+    for (let i = 1; i <= doc.numPages; i++) {
+      const page = await doc.getPage(i);
+      const content = await page.getTextContent();
+      pages.push(content.items.map((item) => item.str).join(' '));
+    }
+    return pages.join('\n');
   }
 
   if (ext === 'txt') {
