@@ -3,17 +3,12 @@ export async function extractTextFromBuffer(buffer, filename) {
 
   if (ext === 'pdf') {
     {
-      const { Worker: NodeWorker } = await import('worker_threads');
-      globalThis.Worker = function PdfWorker(url, opts) {
-        if (!url || url === 'data:application/javascript,') {
-          return { postMessage() {}, terminate() {}, addEventListener() {}, removeEventListener() {} };
-        }
-        return new NodeWorker(url, opts);
-      };
+      const { createRequire } = await import('module');
+      const req = createRequire(import.meta.url);
+      req('pdfjs-dist/legacy/build/pdf.worker.js');
     }
     const mod = await import('pdfjs-dist/legacy/build/pdf.js');
     const pdfjs = mod.default || mod;
-    pdfjs.GlobalWorkerOptions.workerSrc = '';
     const data = new Uint8Array(buffer);
     const doc = await pdfjs.getDocument(data).promise;
     const pages = [];
