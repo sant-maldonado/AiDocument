@@ -2,10 +2,10 @@ export async function extractTextFromBuffer(buffer, filename) {
   const ext = filename.split('.').pop().toLowerCase();
 
   if (ext === 'pdf') {
-    const pdfjs = await import('pdfjs-dist');
-    pdfjs.GlobalWorkerOptions.workerSrc = '';
+    const mod = await import('pdfjs-dist');
+    const pdfjs = mod.default || mod;
     const data = new Uint8Array(buffer);
-    const doc = await pdfjs.getDocument(data).promise;
+    const doc = await pdfjs.getDocument({ data, disableWorker: true }).promise;
     const pages = [];
     for (let i = 1; i <= doc.numPages; i++) {
       const page = await doc.getPage(i);
