@@ -3,12 +3,26 @@ import mongoose from 'mongoose';
 const uri = process.env.MONGODB_URI;
 
 if (!uri) {
-  console.error('MONGODB_URI is required');
-  process.exit(1);
+  throw new Error('MONGODB_URI environment variable is required');
 }
 
-mongoose.connect(uri)
-  .then(() => console.log('Connected to MongoDB Atlas'))
-  .catch((err) => console.error('MongoDB connection error:', err));
+let cached = global._mongooseCache;
+if (!cached) {
+  cached = global._mongooseCache = { conn: null, promise: null };
+}
+
+export async function connectDB() {
+  if (cached.conn) return cached.conn;
+
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(uri).then((m) => {
+      console.log('Connected to MongoDB Atlas');
+      return m;
+    });
+  }
+
+  cached.conn = await cached.promise;
+  return cached.conn;
+}
 
 export default mongoose;
