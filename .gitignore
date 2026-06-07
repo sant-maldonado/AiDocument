@@ -1,0 +1,9 @@
+node_modules/
+client/node_modules/
+.env
+server/uploads/
+dist/
+*.log
+.vite/
+coverage/
+.DS_Store

@@ -1,0 +1,10 @@
+Test Users for AiDocument
+============================
+
+Username: demo2
+Email:    demo2@test.com
+Password: 123456
+
+============================
+Backend:  http://localhost:3001
+Frontend: http://localhost:5173
