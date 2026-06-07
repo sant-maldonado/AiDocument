@@ -1,10 +1,24 @@
+import { createRequire } from 'module';
+
 export async function extractTextFromBuffer(buffer, filename) {
   const ext = filename.split('.').pop().toLowerCase();
 
   if (ext === 'pdf') {
-    const pdfParse = (await import('pdf-parse')).default;
-    const data = await pdfParse(buffer);
-    return data.text;
+    const req = createRequire(import.meta.url);
+    req('pdfjs-dist/legacy/build/pdf.worker.js');
+
+    const mod = await import('pdfjs-dist/legacy/build/pdf.js');
+    const pdfjs = mod.default || mod;
+    pdfjs.GlobalWorkerOptions.workerSrc = '';
+    const data = new Uint8Array(buffer);
+    const doc = await pdfjs.getDocument(data).promise;
+    const pages = [];
+    for (let i = 1; i <= doc.numPages; i++) {
+      const page = await doc.getPage(i);
+      const content = await page.getTextContent();
+      pages.push(content.items.map((item) => item.str).join(' '));
+    }
+    return pages.join('\n');
   }
 
   if (ext === 'txt') {
