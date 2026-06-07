@@ -1,11 +1,9 @@
-import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
-
-pdfjs.GlobalWorkerOptions.workerSrc = '';
-
 export async function extractTextFromBuffer(buffer, filename) {
   const ext = filename.split('.').pop().toLowerCase();
 
   if (ext === 'pdf') {
+    const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
+    pdfjs.GlobalWorkerOptions.workerSrc = '';
     const data = new Uint8Array(buffer);
     const doc = await pdfjs.getDocument(data).promise;
     const pages = [];
