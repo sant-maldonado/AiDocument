@@ -2,13 +2,13 @@ let groq;
 
 async function getGroq() {
   if (!groq) {
-    if (!process.env.OPENAI_API_KEY) {
-      throw new Error('OPENAI_API_KEY no está configurada en las variables de entorno');
+    if (!process.env.GROQ_API_KEY) {
+      throw new Error('GROQ_API_KEY no está configurada en las variables de entorno');
     }
     const { default: OpenAI } = await import('openai');
     groq = new OpenAI({
       baseURL: 'https://api.groq.com/openai/v1',
-      apiKey: process.env.OPENAI_API_KEY,
+      apiKey: process.env.GROQ_API_KEY,
     });
   }
   return groq;

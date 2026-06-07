@@ -1,6 +1,6 @@
 import Document from '../models/Document.js';
 import Conversation from '../models/Conversation.js';
-import { streamChat } from '../utils/openai.js';
+import { streamChat } from '../utils/groq.js';
 
 export async function handleChat(req, res) {
   try {

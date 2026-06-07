@@ -38,7 +38,7 @@ app.get('/api/debug-env', async (req, res) => {
   res.json({
     MONGODB_URI: !!process.env.MONGODB_URI,
     JWT_SECRET: !!process.env.JWT_SECRET,
-    OPENAI_API_KEY: !!process.env.OPENAI_API_KEY,
+    GROQ_API_KEY: !!process.env.GROQ_API_KEY,
     CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME || '(not set)',
     CLOUDINARY_API_KEY: !!process.env.CLOUDINARY_API_KEY,
     CLOUDINARY_API_SECRET: !!process.env.CLOUDINARY_API_SECRET,
