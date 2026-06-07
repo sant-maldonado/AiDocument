@@ -2,6 +2,9 @@ export async function extractTextFromBuffer(buffer, filename) {
   const ext = filename.split('.').pop().toLowerCase();
 
   if (ext === 'pdf') {
+    if (typeof globalThis.Worker === 'undefined') {
+      globalThis.Worker = (await import('worker_threads')).Worker;
+    }
     const mod = await import('pdfjs-dist/legacy/build/pdf.js');
     const pdfjs = mod.default || mod;
     pdfjs.GlobalWorkerOptions.workerSrc = '';
