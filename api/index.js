@@ -21,6 +21,11 @@ app.use(async (req, res, next) => {
   }
 });
 
+app.use((req, res, next) => {
+  console.log(`[${req.method}] path="${req.path}" url="${req.url}" originalUrl="${req.originalUrl}"`);
+  next();
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/chat', chatRoutes);
@@ -43,6 +48,16 @@ app.get('/api/debug-env', async (req, res) => {
     CLOUDINARY_API_KEY: !!process.env.CLOUDINARY_API_KEY,
     CLOUDINARY_API_SECRET: !!process.env.CLOUDINARY_API_SECRET,
     cloudinary_config: cloudinaryConfig,
+  });
+});
+
+app.use((req, res) => {
+  res.status(404).json({
+    error: 'Route not found',
+    method: req.method,
+    path: req.path,
+    url: req.url,
+    originalUrl: req.originalUrl,
   });
 });
 
