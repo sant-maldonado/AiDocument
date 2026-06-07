@@ -25,11 +25,16 @@ app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/chat', chatRoutes);
 
-import { v2 as cloudinary } from 'cloudinary';
-
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
-app.get('/api/debug-env', (req, res) => {
+app.get('/api/debug-env', async (req, res) => {
+  let cloudinaryConfig = null;
+  try {
+    const { getConfig } = await import('./_lib/utils/cloudinary.js');
+    cloudinaryConfig = await getConfig();
+  } catch (e) {
+    cloudinaryConfig = { error: e.message };
+  }
   res.json({
     MONGODB_URI: !!process.env.MONGODB_URI,
     JWT_SECRET: !!process.env.JWT_SECRET,
@@ -37,7 +42,7 @@ app.get('/api/debug-env', (req, res) => {
     CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME || '(not set)',
     CLOUDINARY_API_KEY: !!process.env.CLOUDINARY_API_KEY,
     CLOUDINARY_API_SECRET: !!process.env.CLOUDINARY_API_SECRET,
-    cloudinary_config: cloudinary.config(),
+    cloudinary_config: cloudinaryConfig,
   });
 });
 
