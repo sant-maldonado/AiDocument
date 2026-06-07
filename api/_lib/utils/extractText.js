@@ -9,9 +9,18 @@ export async function extractTextFromBuffer(buffer, filename) {
 
     const mod = await import('pdfjs-dist/legacy/build/pdf.js');
     const pdfjs = mod.default || mod;
+    const PasswordException = mod.PasswordException;
     pdfjs.GlobalWorkerOptions.workerSrc = '';
     const data = new Uint8Array(buffer);
-    const doc = await pdfjs.getDocument(data).promise;
+    let doc;
+    try {
+      doc = await pdfjs.getDocument(data).promise;
+    } catch (err) {
+      if (err instanceof PasswordException || err.name === 'PasswordException') {
+        throw new Error('El PDF está protegido con contraseña. Subí un PDF sin protección.');
+      }
+      throw err;
+    }
     const pages = [];
     for (let i = 1; i <= doc.numPages; i++) {
       const page = await doc.getPage(i);
