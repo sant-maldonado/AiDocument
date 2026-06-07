@@ -2,8 +2,14 @@ export async function extractTextFromBuffer(buffer, filename) {
   const ext = filename.split('.').pop().toLowerCase();
 
   if (ext === 'pdf') {
-    if (typeof globalThis.Worker === 'undefined') {
-      globalThis.Worker = (await import('worker_threads')).Worker;
+    {
+      const { Worker: NodeWorker } = await import('worker_threads');
+      globalThis.Worker = function PdfWorker(url, opts) {
+        if (!url || url === 'data:application/javascript,') {
+          return { postMessage() {}, terminate() {}, addEventListener() {}, removeEventListener() {} };
+        }
+        return new NodeWorker(url, opts);
+      };
     }
     const mod = await import('pdfjs-dist/legacy/build/pdf.js');
     const pdfjs = mod.default || mod;
