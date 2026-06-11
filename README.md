@@ -3,9 +3,9 @@
 Aplicación fullstack para chatear con tus documentos PDF usando IA. Subís un PDF, hacés preguntas en lenguaje natural y recibís respuestas en tiempo real con efecto de escritura.
 
 ## 🚀 Demo en vivo
-[(https://ai-document-flax.vercel.app/)]
+(https://ai-document-flax.vercel.app/)
 
-**Usuario de prueba:**
+Usuario de prueba:
 Email: demo@demo.com
 Password: demo1234
 
